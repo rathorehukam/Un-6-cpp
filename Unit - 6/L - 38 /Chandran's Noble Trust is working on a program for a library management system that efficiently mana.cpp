@@ -2,84 +2,80 @@
 
 
 
-
-
-
-
-
-
-
-
 #include <iostream>
-#include <vector>
-#include <algorithm>
+#include <string>
+#include <unordered_map>
+#include <unordered_set>
+using namespace std;
+
+class InvalidBookIDException {};
+class BookNotAvailableException {};
+class MaximumBooksReachedException {};
 
 const int MAX_BOOKS = 20;
 
-class InvalidBookIDException : public std::exception {
-public:
-    const char* what() const noexcept override {
-        return "Invalid book ID.";
-    }
-};
-
-class BookNotAvailableException : public std::exception {
-public:
-    const char* what() const noexcept override {
-        return "Book not available.";
-    }
-};
-
 class Library {
 private:
-    std::vector<std::string> books;
+    unordered_map<string, bool> books; // Tracks book availability
+    int bookCount;
 
 public:
-    void addBook(const std::string& bookID) {
-        if (books.size() >= MAX_BOOKS) {
-            throw BookNotAvailableException();
+    Library() : bookCount(0) {}
+
+    void addBook(const string& bookID) {
+        if (bookCount >= MAX_BOOKS) {
+            throw MaximumBooksReachedException();
         }
-        books.push_back(bookID);
-        std::cout << "Book with ID " << bookID << " added to the library." << std::endl;
+
+        books[bookID] = true; // Book is available
+        bookCount++;
+        cout << "Book with ID " << bookID << " added to the library." << endl;
     }
 
-    void borrowBook(const std::string& bookID) {
-        auto it = std::find(books.begin(), books.end(), bookID);
-        if (it == books.end()) {
+    void borrowBook(const string& bookID) {
+        if (books.find(bookID) == books.end()) {
             throw InvalidBookIDException();
         }
-        books.erase(it);
-        std::cout << "Book with ID " << bookID << " borrowed successfully." << std::endl;
+
+        if (!books[bookID]) {
+            throw BookNotAvailableException();
+        }
+
+        books[bookID] = false; // Mark book as borrowed
+        cout << "Book with ID " << bookID << " borrowed successfully." << endl;
     }
 
-    void returnBook(const std::string& bookID) {
-        books.push_back(bookID);
-        std::cout << "Book with ID " << bookID << " returned to the library." << std::endl;
+    void returnBook(const string& bookID) {
+        if (books.find(bookID) == books.end()) {
+            throw InvalidBookIDException();
+        }
+
+        books[bookID] = true; // Mark book as returned
+        cout << "Book with ID " << bookID << " returned to the library." << endl;
     }
 };
 
 int main() {
-    int numBooks;
-    std::cin >> numBooks;
-
     Library library;
+    int numBooks;
+    string bookID, borrowID, returnID;
 
-    for (int i = 0; i < numBooks; i++) {
-        std::string bookID;
-        std::cin >> bookID;
-        library.addBook(bookID);
-    }
-
-    std::string borrowID, returnID;
-    std::cin >> borrowID >> returnID;
-
+    cin >> numBooks;
     try {
+        for (int i = 0; i < numBooks; ++i) {
+            cin >> bookID;
+            library.addBook(bookID);
+        }
+
+        cin >> borrowID >> returnID;
         library.borrowBook(borrowID);
         library.returnBook(returnID);
-    } catch (const InvalidBookIDException& e) {
-        std::cout << "Exception caught. Error: " << e.what() << std::endl;
-    } catch (const BookNotAvailableException& e) {
-        std::cout << "Exception caught. Error: " << e.what() << std::endl;
+    } catch (const InvalidBookIDException&) {
+        cout << "Exception caught. Error: Invalid book ID." << endl;
+    } catch (const BookNotAvailableException&) {
+        cout << "Exception caught. Error: Book not available." << endl;
+    } catch (const MaximumBooksReachedException&) {
+        cout << "Exception caught. Error: Maximum number of books reached." << endl;
     }
 
     return 0;
