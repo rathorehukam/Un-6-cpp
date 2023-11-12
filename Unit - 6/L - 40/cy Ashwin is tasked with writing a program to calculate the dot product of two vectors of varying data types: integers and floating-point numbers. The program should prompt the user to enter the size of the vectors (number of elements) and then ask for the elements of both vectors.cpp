@@ -5,42 +5,53 @@
 
 
 
+
+
+
+
+
 #include <iostream>
 #include <vector>
-using namespace std;
 
 template<class T>
-T dotProduct(const vector<T>& v1, const vector<T>& v2) {
+T dotProduct(const std::vector<T>& v1, const std::vector<T>& v2) {
     T result = 0;
-    for (size_t i = 0; i < v1.size(); ++i) {
+
+    for (int i = 0; i < v1.size(); i++) {
         result += v1[i] * v2[i];
     }
+
     return result;
 }
 
 int main() {
     int n;
-    cin >> n;
+    std::cin >> n;
 
-    vector<int> intVec1(n), intVec2(n);
-    vector<float> floatVec1(n), floatVec2(n);
+    std::vector<int> v1(n), v2(n);
+    std::vector<double> v3(n), v4(n);
 
-    for (int i = 0; i < n; ++i) {
-        cin >> intVec1[i];
-    }
-    for (int i = 0; i < n; ++i) {
-        cin >> intVec2[i];
+    for (int i = 0; i < n; i++) {
+        std::cin >> v1[i];
     }
 
-    for (int i = 0; i < n; ++i) {
-        cin >> floatVec1[i];
-    }
-    for (int i = 0; i < n; ++i) {
-        cin >> floatVec2[i];
+    for (int i = 0; i < n; i++) {
+        std::cin >> v2[i];
     }
 
-    cout << "Dot product of integer vectors: " << dotProduct(intVec1, intVec2) << endl;
-    cout << "Dot product of floating-point vectors: " << dotProduct(floatVec1, floatVec2) << endl;
+    for (int i = 0; i < n; i++) {
+        std::cin >> v3[i];
+    }
+
+    for (int i = 0; i < n; i++) {
+        std::cin >> v4[i];
+    }
+
+    int intDotProduct = dotProduct(v1, v2);
+    double doubleDotProduct = dotProduct(v3, v4);
+
+    std::cout << "Dot product of integer vectors: " << intDotProduct << std::endl;
+    std::cout << "Dot product of floating-point vectors: " << doubleDotProduct << std::endl;
 
     return 0;
 }
