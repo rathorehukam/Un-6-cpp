@@ -8,85 +8,103 @@
 
 
 
+
+
+// You are using GCC
 #include <iostream>
-#include <vector>
 #include <stdexcept>
 #include <string>
 
-using namespace std;
+const int MAX_STUDENTS = 20;
 
-// Custom exceptions for the class roster system
-class InvalidGradeException : public exception {
+class InvalidGradeException : public std::exception {
 public:
     const char* what() const noexcept override {
-        return "Invalid grade. Grade should be between A and E.";
+        return "Error: Invalid grade. Grade should be between A and E.";
     }
 };
 
-class StudentNotFoundException : public exception {
+class StudentNotFoundException : public std::exception {
 public:
     const char* what() const noexcept override {
-        return "Student not found in the class roster.";
+        return "Error: Student not found in the class roster.\n";
     }
 };
 
-// Class roster management
-class ClassRoster {
+class StudentGradeManagement {
 private:
-    vector<pair<string, char>> students; // Pair of student name and grade
-    const int MAX_STUDENTS = 20;
+    struct Student {
+        std::string name;
+        std::string grade;
+    };
+
+    Student roster[MAX_STUDENTS];
+    int numStudents;
 
 public:
-    void addStudent(const string& studentName) {
-        if (students.size() >= MAX_STUDENTS) {
-            throw runtime_error("Class roster is full. Cannot add more students.");
+    StudentGradeManagement() : numStudents(0) {}
+
+    void addStudent(const std::string& name) {
+        if (numStudents >= MAX_STUDENTS) {
+            std::cout << "Class roster is full. Cannot add more students.";
+            return;
         }
-        students.emplace_back(studentName, ' '); // Initial grade is blank
-        cout << "Student " << studentName << " added to the class roster." << endl;
+
+        roster[numStudents].name = name;
+        roster[numStudents].grade = "N/A";
+        numStudents++;
+
+        std::cout << "Student " << name << " added to the class roster.\n";
     }
 
-    void updateGrade(const string& studentName, char grade) {
-        if (grade < 'A' || grade > 'E') {
-            throw InvalidGradeException();
-        }
-
-        for (auto& student : students) {
-            if (student.first == studentName) {
-                student.second = grade;
-                cout << "Grade for student " << studentName << " updated to " << grade << "." << endl;
-                return;
+    void updateGrade(const std::string& name, const std::string& letterGrade) {
+        int studentIndex = -1;
+        for (int i = 0; i < numStudents; i++) {
+            if (roster[i].name == name) {
+                studentIndex = i;
+                break;
             }
         }
 
-        throw StudentNotFoundException();
+        if (studentIndex == -1) {
+            throw StudentNotFoundException();
+        }
+
+        if (letterGrade != "A" && letterGrade != "B" && letterGrade != "C" && letterGrade != "D" && letterGrade != "E") {
+            throw InvalidGradeException();
+        }
+
+        roster[studentIndex].grade = letterGrade;
+        std::cout << "Grade for student " << name << " updated to " << letterGrade << ".\n";
     }
 };
 
 int main() {
-    ClassRoster classRoster;
+    StudentGradeManagement gradeManager;
     int numStudents;
-    cin >> numStudents;
+    std::string name, letterGrade;
 
-    string studentName;
-    for (int i = 0; i < numStudents; ++i) {
-        cin >> studentName;
-        try {
-            classRoster.addStudent(studentName);
-        } catch (const runtime_error& e) {
-            cout << e.what() << endl;
-        }
+    std::cin >> numStudents;
+
+    for (int i = 0; i < numStudents; i++) {
+        std::cin >> name;
+        gradeManager.addStudent(name);
     }
 
-    string nameToUpdate;
-    char gradeToUpdate;
-    cin >> nameToUpdate >> gradeToUpdate;
+    if (numStudents >= MAX_STUDENTS) {
+        return 0;
+    }
+
+    std::cin >> name >> letterGrade;
 
     try {
-        classRoster.updateGrade(nameToUpdate, gradeToUpdate);
-    } catch (const InvalidGradeException& e) {
-        cout << "Exception caught. Error: " << e.what() << endl;
-    } catch (const StudentNotFoundException& e) {
-        cout << "Exception caught. Error: " << e.what() << endl;
+        gradeManager.updateGrade(name, letterGrade);
+    } 
+    catch (const InvalidGradeException& e) {
+        std::cout << "Exception caught. " << e.what();
+    } 
+    catch (const StudentNotFoundException& e) {
+        std::cout << "Exception caught. " << e.what();
     }
 
     return 0;
