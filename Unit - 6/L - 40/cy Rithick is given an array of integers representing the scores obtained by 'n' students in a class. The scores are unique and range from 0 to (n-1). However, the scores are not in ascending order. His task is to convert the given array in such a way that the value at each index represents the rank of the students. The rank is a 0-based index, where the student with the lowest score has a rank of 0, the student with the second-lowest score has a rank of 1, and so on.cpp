@@ -9,28 +9,24 @@
 
 
 
+
 #include <iostream>
 #include <vector>
-#include <algorithm>
-#include <unordered_map>
 
 using namespace std;
 
-vector<int> convertToRanks(const vector<int>& scores) {
-    // Create a copy of the scores array and sort it
-    vector<int> sortedScores = scores;
-    sort(sortedScores.begin(), sortedScores.end());
+vector<int> convertToRanks(vector<int>& scores) {
+    int n = scores.size();
+    vector<int> ranks(n);
 
-    // Map each score to its rank
-    unordered_map<int, int> scoreToRank;
-    for (int i = 0; i < sortedScores.size(); i++) {
-        scoreToRank[sortedScores[i]] = i;
-    }
-
-    // Convert the original scores to their ranks
-    vector<int> ranks;
-    for (int score : scores) {
-        ranks.push_back(scoreToRank[score]);
+    for (int i = 0; i < n; i++) {
+        int rank = 0;
+        for (int j = 0; j < n; j++) {
+            if (i != j && scores[j] < scores[i]) {
+                rank++;
+            }
+        }
+        ranks[i] = rank;
     }
 
     return ranks;
@@ -39,29 +35,27 @@ vector<int> convertToRanks(const vector<int>& scores) {
 int main() {
     int n;
     cin >> n;
-
-    // Validate array size
-    if (n <= 0) {
-        cout << -1 << endl;
-        return 0;
+    if(n<=0){
+        cout<<"-1";
     }
-
+    else{
     vector<int> scores(n);
     for (int i = 0; i < n; i++) {
         cin >> scores[i];
     }
+    cout<<"Input Array: ";
+    for(int i=0;i<n;i++){
+        cout<<scores[i]<<" ";
+    }
+    cout<<endl;
 
     vector<int> ranks = convertToRanks(scores);
-
-    cout << "Input Array: ";
-    for (int score : scores) {
-        cout << score << " ";
+cout<<"Converted Array: ";
+    for (int i = 0; i < n; i++) {
+        cout << ranks[i] << " ";
     }
-    cout << endl << "Converted Array: ";
-    for (int rank : ranks) {
-        cout << rank << " ";
-    }
-    cout << endl;
+    cout << endl;}
 
     return 0;
 }
+
